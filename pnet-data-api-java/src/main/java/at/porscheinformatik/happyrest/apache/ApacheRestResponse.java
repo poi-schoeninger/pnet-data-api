@@ -13,12 +13,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.ContentType;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 
 import at.porscheinformatik.happyrest.GenericType;
 import at.porscheinformatik.happyrest.MediaType;
@@ -45,15 +43,15 @@ class ApacheRestResponse<T> implements RestResponse<T>
         DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT)};
 
     @SuppressWarnings("unchecked")
-    public static <T> ApacheRestResponse<T> create(RestParser parser, HttpResponse response, GenericType<T> type)
-        throws RestException
+    public static <T> ApacheRestResponse<T> create(RestParser parser, CloseableHttpResponse response,
+        GenericType<T> type) throws RestException
     {
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-        String statusMessage = RestUtils.getHttpStatusMessage(statusCode, statusLine.getReasonPhrase());
-        Header[] headers = response.getAllHeaders();
+        int statusCode = response.getCode();
+        String statusMessage = RestUtils.getHttpStatusMessage(statusCode, response.getReasonPhrase());
+        Header[] headers = response.getHeaders();
         HttpEntity entity = response.getEntity();
-        ContentType contentType = ContentType.get(entity);
+        String entityContentType = entity.getContentType();
+        ContentType contentType = entityContentType != null ? ContentType.parse(entityContentType) : null;
         long contentLength = entity.getContentLength();
         T body = null;
 
@@ -80,10 +78,6 @@ class ApacheRestResponse<T> implements RestResponse<T>
                 {
                     body = (T) parser.parse(ApacheRestUtils.convertMediaType(contentType), type, in);
                 }
-            }
-            catch (ParseException e)
-            {
-                throw new RestResponseException("Failed to parse response", statusCode, statusMessage, e);
             }
             catch (IOException e)
             {

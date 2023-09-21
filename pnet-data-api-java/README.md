@@ -121,8 +121,8 @@ You will need the following dependencies:
 </dependency>
 
 <dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
 </dependency>
 ```
 

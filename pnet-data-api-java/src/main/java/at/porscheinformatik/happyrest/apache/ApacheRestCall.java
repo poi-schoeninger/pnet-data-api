@@ -8,22 +8,21 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpOptions;
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 
 import at.porscheinformatik.happyrest.AbstractRestCall;
 import at.porscheinformatik.happyrest.GenericType;
@@ -106,17 +105,17 @@ public class ApacheRestCall extends AbstractRestCall
         boolean form = verify(method);
         String url = buildUrl();
 
-        HttpRequestBase request = buildRequest(method, url, form);
+        HttpUriRequestBase request = buildRequest(method, url, form);
 
         computeHeaders(request);
         computeEntity(method, request);
 
-        getLoggerAdapter().logRequest(method, String.valueOf(request.getURI()));
+        getLoggerAdapter().logRequest(method, request.getRequestUri());
 
         return invoke(method, responseType, request);
     }
 
-    protected <T> RestResponse<T> invoke(RestMethod method, GenericType<T> responseType, HttpRequestBase request)
+    protected <T> RestResponse<T> invoke(RestMethod method, GenericType<T> responseType, HttpUriRequestBase request)
         throws RestException, RestRequestException
     {
         try (CloseableHttpResponse response = httpClient.execute(request))
@@ -144,9 +143,9 @@ public class ApacheRestCall extends AbstractRestCall
         return url;
     }
 
-    private HttpRequestBase buildRequest(RestMethod method, String url, boolean form) throws RestRequestException
+    private HttpUriRequestBase buildRequest(RestMethod method, String url, boolean form) throws RestRequestException
     {
-        HttpRequestBase request;
+        HttpUriRequestBase request;
 
         try
         {
@@ -229,7 +228,7 @@ public class ApacheRestCall extends AbstractRestCall
         }
     }
 
-    private void computeHeaders(HttpRequestBase request)
+    private void computeHeaders(HttpUriRequestBase request)
     {
         getHeaders()
             .forEach(header -> request.addHeader(header.getName(), format(MediaType.TEXT_PLAIN, header.getValue())));
@@ -249,7 +248,7 @@ public class ApacheRestCall extends AbstractRestCall
         }
     }
 
-    private void computeEntity(RestMethod method, HttpRequestBase request) throws RestRequestException
+    private void computeEntity(RestMethod method, HttpUriRequestBase request) throws RestRequestException
     {
         HttpEntity requestEntity;
 
@@ -264,12 +263,7 @@ public class ApacheRestCall extends AbstractRestCall
 
         if (requestEntity != null)
         {
-            if (!(request instanceof HttpEntityEnclosingRequestBase))
-            {
-                throw new UnsupportedOperationException("A body in a " + method + " request is not supported");
-            }
-
-            ((HttpEntityEnclosingRequestBase) request).setEntity(requestEntity);
+            request.setEntity(requestEntity);
         }
     }
 }

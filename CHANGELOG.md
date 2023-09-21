@@ -1,3 +1,10 @@
+pnet-data-api 2.5.0
+====================
+
+* Replaced the outdated Apache HTTP client with the version 5 of the client.
+  You have to update your dependencies to `org.apache.httpcomponents.client5:httpclient5`
+
+
 pnet-data-api 2.4.0
 ====================
 

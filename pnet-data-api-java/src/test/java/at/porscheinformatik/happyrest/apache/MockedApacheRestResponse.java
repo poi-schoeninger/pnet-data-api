@@ -7,9 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.http.Header;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.Header;
 
 import at.porscheinformatik.happyrest.GenericType;
 import at.porscheinformatik.happyrest.MockedRestResponse;
@@ -18,10 +17,10 @@ import at.porscheinformatik.happyrest.RestUtils;
 public class MockedApacheRestResponse<T> extends MockedRestResponse<T>
 {
     private final GenericType<T> responseType;
-    private final HttpRequestBase request;
+    private final HttpUriRequestBase request;
     private String requestBody;
 
-    public MockedApacheRestResponse(GenericType<T> responseType, HttpRequestBase request)
+    public MockedApacheRestResponse(GenericType<T> responseType, HttpUriRequestBase request)
     {
         super();
 
@@ -30,16 +29,7 @@ public class MockedApacheRestResponse<T> extends MockedRestResponse<T>
 
         try
         {
-            if (request instanceof HttpEntityEnclosingRequestBase)
-            {
-                requestBody = new String(
-                    RestUtils.readAllBytes(((HttpEntityEnclosingRequestBase) request).getEntity().getContent()),
-                    StandardCharsets.UTF_8);
-            }
-            else
-            {
-                requestBody = null;
-            }
+            requestBody = new String(RestUtils.readAllBytes(request.getEntity().getContent()), StandardCharsets.UTF_8);
         }
         catch (UnsupportedOperationException e)
         {
@@ -51,7 +41,7 @@ public class MockedApacheRestResponse<T> extends MockedRestResponse<T>
         }
     }
 
-    public HttpRequestBase getRequest()
+    public HttpUriRequestBase getRequest()
     {
         return request;
     }
@@ -70,7 +60,7 @@ public class MockedApacheRestResponse<T> extends MockedRestResponse<T>
     @Override
     public String getRequestUrl()
     {
-        return request.getURI().toString();
+        return request.getRequestUri();
     }
 
     @Override

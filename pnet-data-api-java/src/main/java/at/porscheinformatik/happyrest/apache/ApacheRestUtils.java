@@ -2,7 +2,7 @@ package at.porscheinformatik.happyrest.apache;
 
 import java.util.Optional;
 
-import org.apache.http.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 
 import at.porscheinformatik.happyrest.MediaType;
 

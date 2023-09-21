@@ -2,12 +2,13 @@ package at.porscheinformatik.happyrest.apache;
 
 import java.net.ProxySelector;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -124,8 +125,7 @@ public class ApacheRestCallFactory implements RestCallFactory
                 builder = builder
                     .setDefaultRequestConfig(RequestConfig
                         .custom()
-                        .setConnectTimeout((int) timeout.toMillis())
-                        .setSocketTimeout((int) timeout.toMillis())
+                        .setConnectionRequestTimeout((int) timeout.toMillis(), TimeUnit.MILLISECONDS)
                         .build());
             }
 

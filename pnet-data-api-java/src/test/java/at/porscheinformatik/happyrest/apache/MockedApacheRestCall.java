@@ -3,8 +3,8 @@ package at.porscheinformatik.happyrest.apache;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import at.porscheinformatik.happyrest.GenericType;
 import at.porscheinformatik.happyrest.MediaType;
@@ -175,7 +175,7 @@ public class MockedApacheRestCall extends ApacheRestCall
     }
 
     @Override
-    protected <T> RestResponse<T> invoke(RestMethod method, GenericType<T> responseType, HttpRequestBase request)
+    protected <T> RestResponse<T> invoke(RestMethod method, GenericType<T> responseType, HttpUriRequestBase request)
         throws RestException, RestRequestException
     {
         return new MockedApacheRestResponse<>(responseType, request);
